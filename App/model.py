@@ -46,12 +46,22 @@ def newCatalog():
 
     catalog['video'] = lt.newList(tipolista,
                                   cmpfunction=comparetittle)
-    catalog['category'] = {}
-    catalog['country'] = {}
-    catalog['tags'] = {}
-    catalog['title'] = lt.newList(tipolista,
-                                  cmpfunction=None)
-
+    catalog["category"] = mp.newMap(34500,
+                                maptype='PROBING',
+                                loadfactor=0.5,
+                                comparefunction=compareTagNames)
+    catalog['country'] = mp.newMap(34500,
+                                maptype='PROBING',
+                                loadfactor=0.5,
+                                comparefunction=compareTagNames)
+    catalog['tags'] = mp.newMap(34500,
+                                maptype='PROBING',
+                                loadfactor=0.5,
+                                comparefunction=compareTagNames)
+    catalog['title'] = mp.newMap(34500,
+                                maptype='PROBING',
+                                loadfactor=0.5,
+                                comparefunction=compareTagNames)
     return catalog
 
 # Funciones para agregar informacion al catalogo
@@ -62,8 +72,6 @@ def addvideo (catalogo, video1):
         video1['trending_date'] += 1
     else:
         lt.addLast(catalogo["title"],video1["title"])
-        mp.put(catalog["title"], video1["title"], video1)
-
         video1['trending_date'] = 1
     
     #req 2
@@ -110,3 +118,104 @@ def cmpVideosByViews(video1, video2):
     if int(video1["views"]) > int(video1["views"]):
         rta = False
     return rta
+
+
+
+#Devuelve verdadero (True) si los 'views' de video1 son menores que los del video2
+#Args:
+#video1: informacion del primer video que incluye su valor 'views'
+#video2: informacion del segundo video que incluye su valor 'views'
+
+# Funciones utilizadas para comparar elementos dentro de una lista
+
+def comparetittle (titulo1, titulo2):
+    if (titulo1['title'] == titulo2['title']):
+        return 0
+    return -1
+
+def comparecannel_tittle (cannel, cannel2):
+    if (cannel['channel']== cannel2['channel']):
+        return 0
+    return -1
+
+def comparepublish_time (time1, time2):
+    if (time1['publish_time'] > time2['publish_time']):
+        return 1
+    elif (time1['publish_time'] < time2['publish_time']):
+        return -1
+    return 0
+
+def compareviews (vistas1, vistas2):
+    if (vistas1['views'] > vistas2['views']):
+        return 1
+    elif (vistas1['views'] < vistas2['views']):
+        return -1
+    return 0
+def comparedislikes( dislikes1, dislikes2):
+    if (dislikes1['dislikes'] > dislikes2['dislikes']):
+        return 1
+    elif (dislikes1['dislikes'] < dislikes1['dislikes']):
+        return -1
+    return 0
+def comparecountry(country1,country2):
+    if (country1['country']== country2['country']):
+        return 0
+    return -14
+
+def comparethings(video1, video2):
+    return(float(video1["views"])>float(video2["views"]))
+
+def comparelikes(video1, video2):
+    return(int(video1["likes"])>int(video2["likes"]))
+
+def compare_trending(video1, video2):
+    return(int(video1["trending_date"])>int(video2["trending_date"]))
+
+# Funciones de ordenamiento
+def tipo_de_orden_model(numero, catalog, size):
+    sub_list = lt.subList(catalog['video'], 0, size)
+    sub_list = sub_list.copy()
+    start_time = time.process_time()
+    if numero == 2:
+        sorted_list = sa.sort(sub_list, compareviews)
+    elif numero == 1:
+        sorted_list = isort.sort(sub_list, compareviews)
+    elif numero == 3:
+        sorted_list = ssort.sort(sub_list, compareviews)
+    elif numero == 4:
+        sorted_list = quick.sort(sub_list, compareviews)
+    else:
+        sorted_list = merge.sort(sub_list, compareviews)
+    stop_time = time.process_time()
+    elapsed_time_mseg = (stop_time - start_time)*1000
+    return elapsed_time_mseg, sorted_list
+
+#requerimiento 1
+def llamar_views(catalog,numero,country,category):
+    rta= sa.sort(catalog["video"],comparethings)
+    best_video = lt.newList() 
+    iterador = it.newIterator(rta)
+    i=1
+    while it.hasNext(iterador) and i <= numero:
+        element=it.next(iterador)
+        if country == element['country'] and category == int(element['category_id']):
+            lt.addLast(best_video, element)
+            i+=1
+    return best_video
+#requerimiento 2
+def llamar_trending(catalog,pais):
+    if (pais in catalog["country"]):
+        ordenado = merge.sort(catalog["country"][pais],compare_trending)
+        return ordenado
+#req 3
+def trending_por_categoria(catalog, category_name):
+    if (category_name in catalog["category"]):
+        ordered = merge.sort(catalog["category"][category_name],compare_trending)
+        return ordered
+
+#Requerimiento 4
+def video_tag(catalog,pais,tag,numero):
+    if tag in catalog["tags"]:
+        if pais in catalog["tags"][tag]:
+            ordenado=merge.sort(catalog["tags"][tag][pais],comparelikes)
+            return ordenado
