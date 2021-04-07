@@ -37,6 +37,7 @@ operación solicitada
 def printMenu():
     print("Bienvenido")
     print("1- Cargar información en el catálogo")
+    print("6- Cargar información en el catalogo")
     print("2- Consultar los Top x videos con más views")
     print("3- Consultar el video que más dias ha sido trending en un país")
     print("4- Consultar el video que más dias ha sido trending en una categoria")
@@ -63,7 +64,13 @@ while True:
         tipo_lista="ARRAY_LIST"
         print("Cargando información de los archivos ....")
         catalog = controller.initCatalog(tipo_lista)
-        loadData(catalog)
+    #lab 7
+    elif int(inputs[0]) == 6:
+        # TODO: modificaciones para observar el tiempo y memoria
+        answer = controller.loadData(catalog)
+        print("Tiempo [ms]: ", f"{answer[0]:.3f}", "  ||  ",
+              "Memoria [kB]: ", f"{answer[1]:.3f}")
+
     #req 1
     elif int(inputs[0]) == 2:
         numero=int(input("Buscando los top ?:"))

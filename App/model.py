@@ -44,27 +44,40 @@ def newCatalog():
                'title': None,
                "tags":None,}
 
-    catalog['video'] = lt.newList(tipolista,
-                                  cmpfunction=comparetittle)
-    catalog["category"] = mp.newMap(34500,
+    catalog['video'] = lt.newList('SINGLE_LINKED', compare_tags)
+
+    catalog["category"] = mp.newMap(345000,
                                 maptype='PROBING',
                                 loadfactor=0.5,
-                                comparefunction=compareTagNames)
-    catalog['country'] = mp.newMap(34500,
+                                comparefunction=comparecategory)
+    catalog['country'] = mp.newMap(345000,
                                 maptype='PROBING',
                                 loadfactor=0.5,
-                                comparefunction=compareTagNames)
-    catalog['tags'] = mp.newMap(34500,
+                                comparefunction=comparecountry)
+    catalog['tags'] = mp.newMap(345000,
                                 maptype='PROBING',
                                 loadfactor=0.5,
-                                comparefunction=compareTagNames)
-    catalog['title'] = mp.newMap(34500,
+                                comparefunction=compare_tags)
+    catalog['title'] = mp.newMap(345000,
                                 maptype='PROBING',
                                 loadfactor=0.5,
-                                comparefunction=compareTagNames)
+                                comparefunction=comparetitle)
     return catalog
 
 # Funciones para agregar informacion al catalogo
+def addvideo(catalog, video):
+    """
+    Esta funcion adiciona un libro a la lista de libros,
+    adicionalmente lo guarda en un Map usando como llave su Id.
+    Adicionalmente se guarda en el indice de autores, una referencia
+    al libro.
+    Finalmente crea una entrada en el Map de años, para indicar que este
+    libro fue publicaco en ese año.
+    """
+    lt.addLast(catalog['video'], video)
+    mp.put(catalog['category'], video['title'], video)
+
+"""
 def addvideo (catalogo, video1):
     pos = lt.isPresent(catalogo["title"],video1["title"])
     if pos:
@@ -73,7 +86,7 @@ def addvideo (catalogo, video1):
     else:
         lt.addLast(catalogo["title"],video1["title"])
         video1['trending_date'] = 1
-    
+  
     #req 2
     pais = video1["country"]
     if pais in (catalogo["country"]):
@@ -102,7 +115,7 @@ def addvideo (catalogo, video1):
             catalogo["tags"][i][video1["country"]] = lt.newList("ARRAY_LIST",cmpfunction=None)
             lt.addLast(catalogo["tags"][i][video1["country"]],video1)
     lt.addLast(catalogo["video"],video1)
-
+"""
 # Funciones para creacion de datos
 def newtitle (title):
     title = {'title': "", "books": None,  "average_rating": 0}
@@ -128,6 +141,59 @@ def cmpVideosByViews(video1, video2):
 
 # Funciones utilizadas para comparar elementos dentro de una lista
 
+#lab 7
+
+def compare_tags(id, entry):
+    """
+    Compara dos ids de libros, id es un identificador
+    y entry una pareja llave-valor
+    """
+    identry = me.getKey(entry)
+    if (int(id) == int(identry)):
+        return 0
+    elif (int(id) > int(identry)):
+        return 1
+    else:
+        return -1
+
+def comparetitle(keyname, title):
+    """
+    Compara dos nombres de autor. El primero es una cadena
+    y el segundo un entry de un map
+    """
+    authentry = me.getKey(title)
+    if (keyname == authentry):
+        return 0
+    elif (keyname > authentry):
+        return 1
+    else:
+        return -1
+
+def comparecountry(keyname, country):
+    """
+    Compara dos nombres de autor. El primero es una cadena
+    y el segundo un entry de un map
+    """
+    authentry = me.getKey(country)
+    if (keyname == authentry):
+        return 0
+    elif (keyname > authentry):
+        return 1
+    else:
+        return -1
+def comparecategory(keyname, category):
+    """
+    Compara dos nombres de autor. El primero es una cadena
+    y el segundo un entry de un map
+    """
+    authentry = me.getKey(category)
+    if (keyname == authentry):
+        return 0
+    elif (keyname > authentry):
+        return 1
+    else:
+        return -1
+"""
 def comparetittle (titulo1, titulo2):
     if (titulo1['title'] == titulo2['title']):
         return 0
@@ -170,7 +236,7 @@ def comparelikes(video1, video2):
 
 def compare_trending(video1, video2):
     return(int(video1["trending_date"])>int(video2["trending_date"]))
-
+"""
 # Funciones de ordenamiento
 def tipo_de_orden_model(numero, catalog, size):
     sub_list = lt.subList(catalog['video'], 0, size)
