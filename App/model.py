@@ -47,20 +47,20 @@ def newCatalog():
     catalog['video'] = lt.newList('SINGLE_LINKED', compare_tags)
 
     catalog["category"] = mp.newMap(345000,
-                                maptype='PROBING',
-                                loadfactor=0.5,
+                                maptype='CHAINING',
+                                loadfactor=6,
                                 comparefunction=comparecategory)
     catalog['country'] = mp.newMap(345000,
-                                maptype='PROBING',
-                                loadfactor=0.5,
+                                maptype='CHAINING',
+                                loadfactor=6,
                                 comparefunction=comparecountry)
     catalog['tags'] = mp.newMap(345000,
-                                maptype='PROBING',
-                                loadfactor=0.5,
+                                maptype='CHAINING',
+                                loadfactor=6,
                                 comparefunction=compare_tags)
     catalog['title'] = mp.newMap(345000,
-                                maptype='PROBING',
-                                loadfactor=0.5,
+                                maptype='CHAINING',
+                                loadfactor=6,
                                 comparefunction=comparetitle)
     return catalog
 
