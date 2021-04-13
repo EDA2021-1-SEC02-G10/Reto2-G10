@@ -32,13 +32,10 @@ El controlador se encarga de mediar entre la vista y el modelo.
 
 # Inicialización del Catálogo de libros
 
-def initCatalog(tipo_lista):
+def initCatalog():
     """
     #Llama la funcion de inicializacion del catalogo del modelo.
     """
-    lista = "ARRAY_LIST"
-    if tipo_lista == 1:
-        lista = "SINGLE_LINKED"
     catalog = model.newCatalog()
     return catalog
 # Funciones para la carga de datos
@@ -48,28 +45,8 @@ def loadData(catalog):
     Carga los datos de los archivos y cargar los datos en la
     estructura de datos
     """
-    # TODO: modificaciones para medir el tiempo y memoria
-    delta_time = -1.0
-    delta_memory = -1.0
-
-    #inicializa el proceso para medir  memoria
-    tracemalloc.start()
-    start_time = getTime()
-    start_memory = getMemory()
-
     loadvideos(catalog)
-    #Toma el tiempo y memoria al inicio del proceso
-    stop_memory = getMemory()
-    stop_time = getTime()
-
-    #finaliza el proceso para medir memoria
-    tracemalloc.stop()
-
-    #calcula la difernecia de tiempo y memoria
-    delta_time = stop_time - start_time
-    delta_memory = deltaMemory(start_memory, stop_memory)
-
-    return delta_time, delta_memory
+    
 
 
 """
@@ -90,10 +67,11 @@ def loadvideos(catalog):
     #cada uno de ellos, se crea en la lista de autores, a dicho autor y una
     #referencia al libro que se esta procesando.
     
-    videosfile = cf.data_dir + 'videos-large.csv'
+    videosfile = cf.data_dir + 'videos-small.csv'
     input_file = csv.DictReader(open(videosfile, encoding='utf-8'))
-    for book in input_file:
-        model.addvideo(catalog, book)
+    for video in input_file:
+        model.addvideocountry(catalog, video)
+        model.addvideotag(catalog,video)
 
 
 
@@ -110,12 +88,12 @@ def VideosByViews(video1, video2):
 # requerimiento 1
 
 def llamar_video_mas_views(catalog,numero,country,category):
-    return model.llamar_views(catalog,numero,country,category)
+    return model.getvideocountry(catalog,numero,country,category)
 
 # requerimiento 2
 
 def llamar_video_mas_trending(catalog,pais):
-    return model.llamar_trending(catalog,pais)
+    return model.getvideotag(catalog,pais)
 
 
 #req 3
@@ -124,8 +102,8 @@ def llamar_trending_por_categoria(catalog,category_name):
     return model.trending_por_categoria(catalog,category_name)
 
 #Requerimiento 4
-def video_tag(catalog, pais, tag, numero):
-    return model.video_tag(catalog,pais,tag,numero)
+def video_tag(catalog, pais, tag):
+    return model.getvideotag(catalog,pais,tag)
 
 # ======================================
 # Funciones para medir tiempo y memoria

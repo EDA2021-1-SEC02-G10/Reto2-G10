@@ -30,6 +30,7 @@ from DISClib.ADT import list as lt
 from DISClib.ADT import map as mp
 from DISClib.DataStructures import mapentry as me
 from DISClib.Algorithms.Sorting import shellsort as sa
+from DISClib.Algorithms.Sorting import mergesort as merge
 assert cf
 
 """
@@ -44,78 +45,84 @@ def newCatalog():
                'title': None,
                "tags":None,}
 
-    catalog['video'] = lt.newList('SINGLE_LINKED', compare_tags)
+    catalog['video'] = lt.newList('SINGLE_LINKED', compareid)
 
-    catalog["category"] = mp.newMap(345000,
+    catalog["category"] = mp.newMap(345000, #345000
                                 maptype='CHAINING',
                                 loadfactor=6,
                                 comparefunction=comparecategory)
-    catalog['country'] = mp.newMap(345000,
+    catalog['country'] = mp.newMap(345000, #345000
+                                maptype='PROBING',
+                                loadfactor=0.8,
+                                comparefunction=comparecountry)
+    catalog['tags'] = mp.newMap(345000, #345000
                                 maptype='CHAINING',
                                 loadfactor=6,
                                 comparefunction=comparecountry)
-    catalog['tags'] = mp.newMap(345000,
-                                maptype='CHAINING',
-                                loadfactor=6,
-                                comparefunction=compare_tags)
-    catalog['title'] = mp.newMap(345000,
+    catalog['title'] = mp.newMap(345000, #345000
                                 maptype='CHAINING',
                                 loadfactor=6,
                                 comparefunction=comparetitle)
     return catalog
 
-# Funciones para agregar informacion al catalogo
-def addvideo(catalog, video):
-    """
-    Esta funcion adiciona un libro a la lista de libros,
-    adicionalmente lo guarda en un Map usando como llave su Id.
-    Adicionalmente se guarda en el indice de autores, una referencia
-    al libro.
-    Finalmente crea una entrada en el Map de años, para indicar que este
-    libro fue publicaco en ese año.
-    """
-    lt.addLast(catalog['video'], video)
-    mp.put(catalog['category'], video['title'], video)
+# ==============================
+# Funciones para crear datos
+# ==============================
 
-"""
-def addvideo (catalogo, video1):
-    pos = lt.isPresent(catalogo["title"],video1["title"])
-    if pos:
-        video1 = lt.getElement(catalogo["video"],(pos))
-        video1['trending_date'] += 1
-    else:
-        lt.addLast(catalogo["title"],video1["title"])
-        video1['trending_date'] = 1
-  
-    #req 2
-    pais = video1["country"]
-    if pais in (catalogo["country"]):
-        lt.addLast(catalogo["country"][pais],video1)
-    else:
-        catalogo["country"][pais] = lt.newList("ARRAY_LIST",cmpfunction=None)
-        lt.addLast(catalogo["country"][pais],video1)
-
-    #req 3
-    categoria = video1["category_id"]
-    if categoria in (catalogo["category"]):
-        lt.addLast(catalogo["category"][categoria],video1)
-    else:
-        catalogo["category"][categoria] = lt.newList("ARRAY_LIST",cmpfunction=None)
-        lt.addLast(catalogo["category"][categoria],video1)
-    
-    #req 4
-    tags = video1["tags"].split("|")
-    for i in tags:
-        if i in (catalogo["tags"]):
-            if video1["country"] in catalogo["tags"]:
-                lt.addLast(catalogo["tags"][i][video1["country"]],video1)
-                pass
+#req 1
+def addvideocountry(catalog,video):
+    categoria = int(video["category_id"])
+    booleano = mp.contains(catalog["country"],video["country"])
+    if booleano:
+        getpais = mp.get(catalog["country"], video["country"])
+        dic = me.getValue(getpais)
+        if categoria in dic:
+            lt.addLast(dic[categoria],video)
         else:
-            catalogo["tags"][i]={}
-            catalogo["tags"][i][video1["country"]] = lt.newList("ARRAY_LIST",cmpfunction=None)
-            lt.addLast(catalogo["tags"][i][video1["country"]],video1)
-    lt.addLast(catalogo["video"],video1)
-"""
+            dic[categoria]=lt.newList()
+            lt.addLast(dic[categoria],video)
+    else:
+        mp.put(catalog["country"], video['country'], {})
+        getpais = mp.get(catalog["country"], video["country"])
+        dic = me.getValue(getpais)
+        dic[categoria]=lt.newList()
+        lt.addLast(dic[categoria],video)
+
+def getvideocountry(catalog, numero, country, category):
+    getpais = mp.get(catalog["country"], country)
+    dic = me.getValue(getpais)
+    getcategoria = dic[category]
+    rta = merge.sort(getcategoria, comparethings)
+    return rta
+
+#req 4
+def addvideotag(catalog,video):
+    tags = video["tags"].split("|")
+    booleano = mp.contains(catalog["tags"],video["country"])
+    if booleano:
+        getpais = mp.get(catalog["tags"], video["country"])
+        dic = me.getValue(getpais)
+        for i in tags:
+            if i in (dic):
+                lt.addLast(dic[i],video)
+            else:
+                dic[i]=lt.newList()
+                lt.addLast(dic[i],video)
+    else:
+        mp.put(catalog["tags"], video['country'], {})
+        getpais = mp.get(catalog["tags"], video["country"])
+        dic = me.getValue(getpais)
+        for i in tags:
+            dic[i]=lt.newList()
+            lt.addLast(dic[i],video)
+
+def getvideotag(catalog, country, tag):
+    getpais = mp.get(catalog["tags"], country)
+    dic = me.getValue(getpais)
+    getcategoria = dic[tag]
+    rta = merge.sort(getcategoria, comparethings)
+    return rta
+
 # Funciones para creacion de datos
 def newtitle (title):
     title = {'title': "", "books": None,  "average_rating": 0}
@@ -132,26 +139,24 @@ def cmpVideosByViews(video1, video2):
         rta = False
     return rta
 
-
-
-#Devuelve verdadero (True) si los 'views' de video1 son menores que los del video2
-#Args:
-#video1: informacion del primer video que incluye su valor 'views'
-#video2: informacion del segundo video que incluye su valor 'views'
-
-# Funciones utilizadas para comparar elementos dentro de una lista
-
 #lab 7
-
-def compare_tags(id, entry):
+def compareid(id, entry):
+    identry = me.getKey(entry)
+    if ((id) == int(identry)):
+        return 0
+    elif ((id) > int(identry)):
+        return 1
+    else:
+        return -1
+def compare_tags(tag, entry):
     """
     Compara dos ids de libros, id es un identificador
     y entry una pareja llave-valor
     """
     identry = me.getKey(entry)
-    if (int(id) == int(identry)):
+    if (int(tag) == int(identry)):
         return 0
-    elif (int(id) > int(identry)):
+    elif (int(tag) > int(identry)):
         return 1
     else:
         return -1
@@ -181,6 +186,7 @@ def comparecountry(keyname, country):
         return 1
     else:
         return -1
+
 def comparecategory(keyname, category):
     """
     Compara dos nombres de autor. El primero es una cadena
@@ -193,95 +199,6 @@ def comparecategory(keyname, category):
         return 1
     else:
         return -1
-"""
-def comparetittle (titulo1, titulo2):
-    if (titulo1['title'] == titulo2['title']):
-        return 0
-    return -1
-
-def comparecannel_tittle (cannel, cannel2):
-    if (cannel['channel']== cannel2['channel']):
-        return 0
-    return -1
-
-def comparepublish_time (time1, time2):
-    if (time1['publish_time'] > time2['publish_time']):
-        return 1
-    elif (time1['publish_time'] < time2['publish_time']):
-        return -1
-    return 0
-
-def compareviews (vistas1, vistas2):
-    if (vistas1['views'] > vistas2['views']):
-        return 1
-    elif (vistas1['views'] < vistas2['views']):
-        return -1
-    return 0
-def comparedislikes( dislikes1, dislikes2):
-    if (dislikes1['dislikes'] > dislikes2['dislikes']):
-        return 1
-    elif (dislikes1['dislikes'] < dislikes1['dislikes']):
-        return -1
-    return 0
-def comparecountry(country1,country2):
-    if (country1['country']== country2['country']):
-        return 0
-    return -14
 
 def comparethings(video1, video2):
     return(float(video1["views"])>float(video2["views"]))
-
-def comparelikes(video1, video2):
-    return(int(video1["likes"])>int(video2["likes"]))
-
-def compare_trending(video1, video2):
-    return(int(video1["trending_date"])>int(video2["trending_date"]))
-"""
-# Funciones de ordenamiento
-def tipo_de_orden_model(numero, catalog, size):
-    sub_list = lt.subList(catalog['video'], 0, size)
-    sub_list = sub_list.copy()
-    start_time = time.process_time()
-    if numero == 2:
-        sorted_list = sa.sort(sub_list, compareviews)
-    elif numero == 1:
-        sorted_list = isort.sort(sub_list, compareviews)
-    elif numero == 3:
-        sorted_list = ssort.sort(sub_list, compareviews)
-    elif numero == 4:
-        sorted_list = quick.sort(sub_list, compareviews)
-    else:
-        sorted_list = merge.sort(sub_list, compareviews)
-    stop_time = time.process_time()
-    elapsed_time_mseg = (stop_time - start_time)*1000
-    return elapsed_time_mseg, sorted_list
-
-#requerimiento 1
-def llamar_views(catalog,numero,country,category):
-    rta= sa.sort(catalog["video"],comparethings)
-    best_video = lt.newList() 
-    iterador = it.newIterator(rta)
-    i=1
-    while it.hasNext(iterador) and i <= numero:
-        element=it.next(iterador)
-        if country == element['country'] and category == int(element['category_id']):
-            lt.addLast(best_video, element)
-            i+=1
-    return best_video
-#requerimiento 2
-def llamar_trending(catalog,pais):
-    if (pais in catalog["country"]):
-        ordenado = merge.sort(catalog["country"][pais],compare_trending)
-        return ordenado
-#req 3
-def trending_por_categoria(catalog, category_name):
-    if (category_name in catalog["category"]):
-        ordered = merge.sort(catalog["category"][category_name],compare_trending)
-        return ordered
-
-#Requerimiento 4
-def video_tag(catalog,pais,tag,numero):
-    if tag in catalog["tags"]:
-        if pais in catalog["tags"][tag]:
-            ordenado=merge.sort(catalog["tags"][tag][pais],comparelikes)
-            return ordenado
