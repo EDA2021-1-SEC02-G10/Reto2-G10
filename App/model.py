@@ -45,23 +45,23 @@ def newCatalog():
                'title': None,
                "tags":None,}
 
-    catalog['video'] = lt.newList('SINGLE_LINKED', compareid)
+    catalog['video'] = lt.newList('SINGLE_LINKED', cmpfunction=comparetittle)
 
     catalog["category"] = mp.newMap(345000, #345000
-                                maptype='CHAINING',
-                                loadfactor=6,
+                                maptype='PROBING',
+                                loadfactor=0.8,
                                 comparefunction=comparecategory)
     catalog['country'] = mp.newMap(345000, #345000
                                 maptype='PROBING',
                                 loadfactor=0.8,
                                 comparefunction=comparecountry)
     catalog['tags'] = mp.newMap(345000, #345000
-                                maptype='CHAINING',
-                                loadfactor=6,
+                                maptype='PROBING',
+                                loadfactor=0.8,
                                 comparefunction=comparecountry)
     catalog['title'] = mp.newMap(345000, #345000
-                                maptype='CHAINING',
-                                loadfactor=6,
+                                maptype='PROBING',
+                                loadfactor=0.8,
                                 comparefunction=comparetitle)
     return catalog
 
@@ -94,6 +94,46 @@ def getvideocountry(catalog, numero, country, category):
     getcategoria = dic[category]
     rta = merge.sort(getcategoria, comparethings)
     return rta
+
+#req 2
+
+def addternding(catalog,video,titulos,todos):
+    titulo = video["title"]
+    booleano = mp.contains(catalog["title"],video["country"])
+    if booleano:
+        getpais = mp.get(catalog["title"], video["country"])
+        dic = me.getValue(getpais)
+        lst = dic["videos"]
+        pos = lt.isPresent(titulos,titulo)
+        if pos:
+            video = lt.getElement(todos, pos+1)
+            video["trending_date"] += 1
+            if video["trending_date"] > dic["trending"]["trending_date"]:
+                 dic["trending"] = video
+        else:
+            video["trending_date"] = 1
+            lt.addLast(lst,video)
+            lt.addLast(titulos,titulo)
+            lt.addLast(todos,video)
+    else:
+        lat = lt.newList()
+        mp.put(catalog["title"], video['country'], { "trending" : None, "videos" : lat})
+        getpais = mp.get(catalog["title"], video["country"])
+        dic = me.getValue(getpais)
+        lst = dic["videos"]
+        video["trending_date"] = 1
+        dic["trending"] = video
+        lt.addLast(lst,video)
+        lt.addLast(titulos,titulo)
+        lt.addLast(todos,video)
+
+def getvideotrending(catalog,pais):
+    getpais = mp.get(catalog["title"], pais)
+    dic = me.getValue(getpais)
+    rta = dic["trending"]
+    return rta
+
+#req 3
 
 #req 4
 def addvideotag(catalog,video):
@@ -202,3 +242,11 @@ def comparecategory(keyname, category):
 
 def comparethings(video1, video2):
     return(float(video1["views"])>float(video2["views"]))
+
+def compare_trending(video1, video2):
+    return(int(video1["trending_date"])>int(video2["trending_date"]))
+
+def comparetittle (titulo1, titulo2):
+    if (titulo1['title'] == titulo2['title']):
+        return 0
+    return -1

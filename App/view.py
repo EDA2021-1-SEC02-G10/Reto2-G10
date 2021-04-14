@@ -83,9 +83,7 @@ while True:
     #req 2
     elif int(inputs[0]) == 4:
         pais=input("Cúal país quiere buscar?:")
-        rta=controller.llamar_video_mas_trending(catalog,pais)
-        iterador= it.newIterator(rta)
-        element=it.next(iterador)
+        element=controller.llamar_video_mas_trending(catalog,pais)
         print(("Title: {} , Channel_title:{} , Country: {} , Numero dias: {}").format(element['title'], element['channel_title'], element['country'], element['trending_date']))
     #req 3
     elif int(inputs[0]) == 5:

@@ -25,6 +25,7 @@ import model
 import csv
 import time
 import tracemalloc
+from DISClib.ADT import list as lt
 
 """
 El controlador se encarga de mediar entre la vista y el modelo.
@@ -67,14 +68,14 @@ def loadvideos(catalog):
     #cada uno de ellos, se crea en la lista de autores, a dicho autor y una
     #referencia al libro que se esta procesando.
     
-    videosfile = cf.data_dir + 'videos-small.csv'
+    videosfile = cf.data_dir + 'videos-large.csv'
     input_file = csv.DictReader(open(videosfile, encoding='utf-8'))
+    titulos = lt.newList()
+    todos = lt.newList()
     for video in input_file:
         model.addvideocountry(catalog, video)
+        model.addternding(catalog, video,titulos,todos)
         model.addvideotag(catalog,video)
-
-
-
 
 # Funciones de ordenamiento
 def tipo_de_orden(numero, catalog, size):
@@ -93,8 +94,7 @@ def llamar_video_mas_views(catalog,numero,country,category):
 # requerimiento 2
 
 def llamar_video_mas_trending(catalog,pais):
-    return model.getvideotag(catalog,pais)
-
+    return model.getvideotrending(catalog,pais)
 
 #req 3
 
