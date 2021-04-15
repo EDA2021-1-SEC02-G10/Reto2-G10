@@ -83,15 +83,19 @@ while True:
     #req 2
     elif int(inputs[0]) == 4:
         pais=input("Cúal país quiere buscar?:")
-        element=controller.llamar_video_mas_trending(catalog,pais)
-        print(("Title: {} , Channel_title:{} , Country: {} , Numero dias: {}").format(element['title'], element['channel_title'], element['country'], element['trending_date']))
+        rta=controller.llamar_video_mas_trending(catalog,pais)
+        print(rta)
+        #iterador= it.newIterator(rta)
+        #element=it.next(iterador)
+        #print(("Title: {} , Channel_title:{} , Country: {} , Numero dias: {}").format(rta['title'], rta['channel_title'], rta['country'], rta['trending_date']))
     #req 3
     elif int(inputs[0]) == 5:
         category_name=str(input("Cúal categoria quiere buscar?:"))
         rta=controller.llamar_trending_por_categoria(catalog,category_name)
-        iterador= it.newIterator(rta)
-        element=it.next(iterador)
-        print(("Title: {} ,  Channel_title: {} , Category_id: {} , Numeros de dias: {}").format(element['title'], element['channel_title'], element['category_id'], element['trending_date']))
+        print(rta)
+        #iterador= it.newIterator(rta)
+        #element=it.next(iterador)
+        #print(("Title: {} ,  Channel_title: {} , Category_id: {} , Numeros de dias: {}").format(element['title'], element['channel_title'], element['category_id'], element['trending_date']))
     #req 4        
     elif int(inputs[0]) == 6:
         pais=input("Cúal país quiere buscar?:")
