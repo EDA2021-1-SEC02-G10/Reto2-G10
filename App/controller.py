@@ -68,15 +68,15 @@ def loadvideos(catalog):
     #cada uno de ellos, se crea en la lista de autores, a dicho autor y una
     #referencia al libro que se esta procesando.
     
-    videosfile = cf.data_dir + 'videos-large.csv'
+    videosfile = cf.data_dir + 'videos-small.csv'
     input_file = csv.DictReader(open(videosfile, encoding='utf-8'))
     #titulos = lt.newList()
     #todos = lt.newList()
     for video in input_file:
         model.addvideocountry(catalog, video)
-        #model.modificar_lista(catalog,video)
+        model.modificar_lista(catalog,video)
         model.addvideotag(catalog,video)
-    #model.mapcountry(catalog)
+    model.mapcountry(catalog)
         #model.addvideo_ID(catalog,video)
 
 # Funciones de ordenamiento

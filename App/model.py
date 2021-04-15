@@ -144,17 +144,17 @@ def getvideotrending(catalog,pais):
 # req 3
 def addternding(catalog,video1):
     
-    booleano = mp.contains(catalog["category"],video1["category"])
+    booleano = mp.contains(catalog["category"],video1["category_id"])
     if booleano:
-        getpais = mp.get(catalog["category"], video1["category"])
+        getpais = mp.get(catalog["category"], video1["category_id"])
         dic = me.getValue(getpais)
         video = dic["trending"]
         if int(video1["trending_date"]) > int(video["trending_date"]):
             video["trending"] = video1
             
     else:
-        mp.put(catalog["category"], video1['category'], { "trending" : None})
-        getpais = mp.get(catalog["category"], video1["category"])
+        mp.put(catalog["category"], video1['category_id'], { "trending" : None})
+        getpais = mp.get(catalog["category"], video1["category_id"])
         dic = me.getValue(getpais)
         dic["trending"] = video1
 
