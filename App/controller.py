@@ -70,12 +70,14 @@ def loadvideos(catalog):
     
     videosfile = cf.data_dir + 'videos-large.csv'
     input_file = csv.DictReader(open(videosfile, encoding='utf-8'))
-    titulos = lt.newList()
-    todos = lt.newList()
+    #titulos = lt.newList()
+    #todos = lt.newList()
     for video in input_file:
         model.addvideocountry(catalog, video)
-        model.addternding(catalog, video,titulos,todos)
+        #model.modificar_lista(catalog,video)
         model.addvideotag(catalog,video)
+    #model.mapcountry(catalog)
+        #model.addvideo_ID(catalog,video)
 
 # Funciones de ordenamiento
 def tipo_de_orden(numero, catalog, size):
@@ -99,7 +101,7 @@ def llamar_video_mas_trending(catalog,pais):
 #req 3
 
 def llamar_trending_por_categoria(catalog,category_name):
-    return model.trending_por_categoria(catalog,category_name)
+    return model.getvideocategory(catalog,category_name)
 
 #Requerimiento 4
 def video_tag(catalog, pais, tag):

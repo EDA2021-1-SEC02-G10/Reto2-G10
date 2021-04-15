@@ -31,6 +31,7 @@ from DISClib.ADT import map as mp
 from DISClib.DataStructures import mapentry as me
 from DISClib.Algorithms.Sorting import shellsort as sa
 from DISClib.Algorithms.Sorting import mergesort as merge
+from DISClib.DataStructures import listiterator as it 
 assert cf
 
 """
@@ -45,7 +46,9 @@ def newCatalog():
                'title': None,
                "tags":None,}
 
-    catalog['video'] = lt.newList('SINGLE_LINKED', cmpfunction=comparetittle)
+    catalog['video'] = lt.newList('SINGLE_LINKED', cmpfunction= None)
+
+    catalog["titulos"] = lt.newList('SINGLE_LINKED', cmpfunction= None)
 
     catalog["category"] = mp.newMap(345000, #345000
                                 maptype='PROBING',
@@ -59,7 +62,7 @@ def newCatalog():
                                 maptype='PROBING',
                                 loadfactor=0.8,
                                 comparefunction=comparecountry)
-    catalog['title'] = mp.newMap(345000, #345000
+    catalog['title'] = mp.newMap(500000, #345000
                                 maptype='PROBING',
                                 loadfactor=0.8,
                                 comparefunction=comparetitle)
@@ -97,35 +100,40 @@ def getvideocountry(catalog, numero, country, category):
 
 #req 2
 
-def addternding(catalog,video,titulos,todos):
-    titulo = video["title"]
-    booleano = mp.contains(catalog["title"],video["country"])
-    if booleano:
-        getpais = mp.get(catalog["title"], video["country"])
-        dic = me.getValue(getpais)
-        lst = dic["videos"]
-        pos = lt.isPresent(titulos,titulo)
-        if pos:
-            video = lt.getElement(todos, pos+1)
-            video["trending_date"] += 1
-            if video["trending_date"] > dic["trending"]["trending_date"]:
-                 dic["trending"] = video
-        else:
-            video["trending_date"] = 1
-            lt.addLast(lst,video)
-            lt.addLast(titulos,titulo)
-            lt.addLast(todos,video)
+def modificar_lista(catalog,video):
+
+    pos = lt.isPresent(catalog["titulos"],video["title"])
+    if pos:
+        video1 = lt.getElement(catalog["video"],pos)
+        video1['trending_date'] += 1
+        
     else:
-        lat = lt.newList()
-        mp.put(catalog["title"], video['country'], { "trending" : None, "videos" : lat})
-        getpais = mp.get(catalog["title"], video["country"])
+        video['trending_date'] = 1
+        lt.addLast(catalog["video"],video)
+        lt.addLast(catalog["titulos"],video["title"])
+
+def addternding(catalog,video1):
+    
+    booleano = mp.contains(catalog["title"],video1["country"])
+    if booleano:
+        getpais = mp.get(catalog["title"], video1["country"])
         dic = me.getValue(getpais)
-        lst = dic["videos"]
-        video["trending_date"] = 1
-        dic["trending"] = video
-        lt.addLast(lst,video)
-        lt.addLast(titulos,titulo)
-        lt.addLast(todos,video)
+        video = dic["trending"]
+        if int(video1["trending_date"]) > int(video["trending_date"]):
+            video["trending"] = video1
+            
+    else:
+        mp.put(catalog["title"], video1['country'], { "trending" : None})
+        getpais = mp.get(catalog["title"], video1["country"])
+        dic = me.getValue(getpais)
+        dic["trending"] = video1
+
+def mapcountry(catalog):
+    lista = catalog["video"]
+    iterador=it.newIterator(lista)
+    while it.hasNext(iterador):
+        video1 = it.next(iterador)
+        addternding(catalog,video1)
 
 def getvideotrending(catalog,pais):
     getpais = mp.get(catalog["title"], pais)
@@ -133,8 +141,29 @@ def getvideotrending(catalog,pais):
     rta = dic["trending"]
     return rta
 
-#req 3
+# req 3
+def addternding(catalog,video1):
+    
+    booleano = mp.contains(catalog["category"],video1["category"])
+    if booleano:
+        getpais = mp.get(catalog["category"], video1["category"])
+        dic = me.getValue(getpais)
+        video = dic["trending"]
+        if int(video1["trending_date"]) > int(video["trending_date"]):
+            video["trending"] = video1
+            
+    else:
+        mp.put(catalog["category"], video1['category'], { "trending" : None})
+        getpais = mp.get(catalog["category"], video1["category"])
+        dic = me.getValue(getpais)
+        dic["trending"] = video1
 
+def getvideocategory(catalog,pais):
+    getpais = mp.get(catalog["category"], pais)
+    dic = me.getValue(getpais)
+    rta = dic["trending"]
+    return rta
+    
 #req 4
 def addvideotag(catalog,video):
     tags = video["tags"].split("|")

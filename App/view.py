@@ -107,6 +107,7 @@ while True:
         while it.hasNext(iterador) and i <= numero:
             element=it.next(iterador)
             print(("Title: {}, Channel_title: {}, publish_time: {}, views: {}, likes: {}, dislikes: {}, tags: {}").format(element['title'],element['channel_title'],element['publish_time'],element['views'], element['likes'], element['dislikes'],element['tags']))
+            i += 1
     else:
         sys.exit(0)
 sys.exit(0)
